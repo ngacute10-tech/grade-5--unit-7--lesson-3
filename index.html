@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vocabulary Homework</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+font-family: Arial;
+background:#eef3ff;
+text-align:center;
+margin:0;
+padding:0;
+}
+
+.container{
+background:white;
+max-width:400px;
+margin:20px auto;
+padding:20px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+h1{
+color:#2c3e50;
+font-size:22px;
+}
+
+button{
+padding:12px;
+margin:5px;
+border:none;
+border-radius:10px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+width:90%;
+}
+
+input{
+padding:10px;
+margin:8px;
+width:85%;
+font-size:16px;
+}
+
+#result{
+font-weight:bold;
+margin-top:10px;
+font-size:18px;
+}
+
+#score{
+color:#e67e22;
+font-weight:bold;
+font-size:18px;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>📚 Vocabulary Homework</h1>
+
+<div class="container">
+
+<input id="studentName" placeholder="Enter your name">
+
+<h2 id="word">writer</h2>
+<p id="ipa">/ˈraɪtər/</p>
+<p id="meaning">người viết</p>
+
+<button onclick="playAudio()">🔊 Listen</button>
+<button onclick="startSpeech()">🎤 Speak</button>
+
+<input id="answer" placeholder="Type what you hear">
+
+<button onclick="checkAnswer()">Check</button>
+
+<p id="result"></p>
+<p id="score">Score: 0</p>
+
+<button onclick="nextWord()">Next ➜</button>
+
+</div>
+
+<script>
+
+// ===== DANH SÁCH TỪ =====
+const vocab = [
+{word:"writer", ipa:"/ˈraɪtər/", meaning:"người viết"},
+{word:"piano player", ipa:"/piˈænəʊ pleɪər/", meaning:"người chơi đàn piano"},
+{word:"zookeeper", ipa:"/ˈzuːkiːpər/", meaning:"người chăm sóc thú"},
+{word:"baker", ipa:"/ˈbeɪkər/", meaning:"thợ làm bánh"},
+{word:"chef", ipa:"/ʃef/", meaning:"đầu bếp"},
+{word:"artist", ipa:"/ˈɑːrtɪst/", meaning:"họa sĩ"}
+];
+
+let index = 0;
+let score = 0;
+
+// ===== HIỂN THỊ =====
+function showWord(){
+document.getElementById("word").innerText=vocab[index].word;
+document.getElementById("ipa").innerText=vocab[index].ipa;
+document.getElementById("meaning").innerText=vocab[index].meaning;
+document.getElementById("answer").value="";
+document.getElementById("result").innerText="";
+}
+
+// ===== NEXT =====
+function nextWord(){
+index++;
+if(index>=vocab.length){ index=0; }
+showWord();
+}
+
+// ===== 🔊 NGHE (TỐI ƯU MOBILE) =====
+let unlocked = false;
+
+document.body.addEventListener("click", function () {
+  if (!unlocked) {
+    let msg = new SpeechSynthesisUtterance(" ");
+    speechSynthesis.speak(msg);
+    unlocked = true;
+  }
+});
+
+function playAudio(){
+let word = vocab[index].word;
+let speech = new SpeechSynthesisUtterance(word);
+speech.lang = "en-US";
+speech.rate = 0.9;
+speechSynthesis.speak(speech);
+}
+
+// ===== CHECK =====
+function checkAnswer(){
+let input=document.getElementById("answer").value.toLowerCase();
+let correct=vocab[index].word;
+
+if(input===correct){
+document.getElementById("result").innerText="✅ Correct";
+score++;
+}else{
+document.getElementById("result").innerText="❌ Try again";
+}
+
+document.getElementById("score").innerText="Score: " + score;
+}
+
+// ===== 🎤 SPEAK =====
+function startSpeech(){
+
+if (!('webkitSpeechRecognition' in window)) {
+alert("⚠️ Chức năng nói hoạt động tốt nhất trên Chrome máy tính!");
+return;
+}
+
+const recognition = new webkitSpeechRecognition();
+recognition.lang="en-US";
+
+recognition.start();
+
+recognition.onresult=function(event){
+let speechResult=event.results[0][0].transcript.toLowerCase();
+document.getElementById("answer").value=speechResult;
+};
+
+}
+
+// ===== START =====
+showWord();
+
+</script>
+
+</body>
+</html>
