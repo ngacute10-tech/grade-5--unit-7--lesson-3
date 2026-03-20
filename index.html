@@ -90,6 +90,8 @@ font-size:18px;
 </div>
 
 <script>
+  let audio = new Audio();
+audio.preload = "auto";
 
 // ===== DANH SÁCH TỪ =====
 const vocab = [
@@ -133,10 +135,20 @@ document.body.addEventListener("click", function () {
 
 function playAudio(){
 let word = vocab[index].word;
-let speech = new SpeechSynthesisUtterance(word);
-speech.lang = "en-US";
-speech.rate = 0.9;
-speechSynthesis.speak(speech);
+
+// bỏ khoảng trắng (piano player → pianoplayer)
+word = word.replace(/\s/g, "");
+
+// đường dẫn file mp3
+audio.src = "audio/" + word + ".mp3";
+
+// load trước
+audio.load();
+
+// phát
+audio.play().catch(() => {
+  alert("❌ Không tìm thấy file mp3!");
+});
 }
 
 // ===== CHECK =====
