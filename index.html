@@ -41,6 +41,10 @@ font-size:16px;
 width:90%;
 }
 
+button:hover{
+background:#2ecc71;
+}
+
 input{
 padding:10px;
 margin:8px;
@@ -60,6 +64,11 @@ font-weight:bold;
 font-size:18px;
 }
 
+img{
+margin:10px 0;
+border-radius:10px;
+}
+
 </style>
 
 </head>
@@ -72,6 +81,9 @@ font-size:18px;
 <input id="studentName" placeholder="Enter your name">
 
 <h2 id="word">writer</h2>
+
+<img id="image" src="images/writer.jpg" width="200">
+
 <p id="ipa">/ˈraɪtər/</p>
 <p id="meaning">người viết</p>
 
@@ -86,11 +98,14 @@ font-size:18px;
 <p id="score">Score: 0</p>
 
 <button onclick="nextWord()">Next ➜</button>
+<button onclick="finish()">Finish 🎉</button>
 
 </div>
 
 <script>
-  let audio = new Audio();
+
+// ===== AUDIO =====
+let audio = new Audio();
 audio.preload = "auto";
 
 // ===== DANH SÁCH TỪ =====
@@ -111,6 +126,11 @@ function showWord(){
 document.getElementById("word").innerText=vocab[index].word;
 document.getElementById("ipa").innerText=vocab[index].ipa;
 document.getElementById("meaning").innerText=vocab[index].meaning;
+
+// hiển thị ảnh
+let word = vocab[index].word.replace(/\s/g, "");
+document.getElementById("image").src = "images/" + word + ".jpg";
+
 document.getElementById("answer").value="";
 document.getElementById("result").innerText="";
 }
@@ -122,37 +142,22 @@ if(index>=vocab.length){ index=0; }
 showWord();
 }
 
-// ===== 🔊 NGHE (TỐI ƯU MOBILE) =====
-let unlocked = false;
-
-document.body.addEventListener("click", function () {
-  if (!unlocked) {
-    let msg = new SpeechSynthesisUtterance(" ");
-    speechSynthesis.speak(msg);
-    unlocked = true;
-  }
-});
-
+// ===== 🔊 LISTEN (MP3) =====
 function playAudio(){
 let word = vocab[index].word;
-
-// bỏ khoảng trắng (piano player → pianoplayer)
 word = word.replace(/\s/g, "");
 
-// đường dẫn file mp3
 audio.src = "audio/" + word + ".mp3";
-
-// load trước
 audio.load();
 
-// phát
 audio.play().catch(() => {
-  alert("❌ Không tìm thấy file mp3!");
+alert("❌ Không tìm thấy file mp3!");
 });
 }
 
 // ===== CHECK =====
 function checkAnswer(){
+let name = document.getElementById("studentName").value;
 let input=document.getElementById("answer").value.toLowerCase();
 let correct=vocab[index].word;
 
@@ -164,13 +169,17 @@ document.getElementById("result").innerText="❌ Try again";
 }
 
 document.getElementById("score").innerText="Score: " + score;
+
+// lưu dữ liệu
+localStorage.setItem("studentName", name);
+localStorage.setItem("score", score);
 }
 
 // ===== 🎤 SPEAK =====
 function startSpeech(){
 
 if (!('webkitSpeechRecognition' in window)) {
-alert("⚠️ Chức năng nói hoạt động tốt nhất trên Chrome máy tính!");
+alert("⚠️ Chức năng nói hoạt động tốt nhất trên Chrome!");
 return;
 }
 
@@ -184,6 +193,29 @@ let speechResult=event.results[0][0].transcript.toLowerCase();
 document.getElementById("answer").value=speechResult;
 };
 
+}
+
+// ===== FINISH =====
+function finish(){
+let name = document.getElementById("studentName").value;
+
+alert("🎉 Student: " + name + 
+"\nScore: " + score + "/" + vocab.length);
+}
+
+// ===== LOAD DỮ LIỆU =====
+window.onload = function(){
+let savedName = localStorage.getItem("studentName");
+let savedScore = localStorage.getItem("score");
+
+if(savedName){
+document.getElementById("studentName").value = savedName;
+}
+
+if(savedScore){
+score = savedScore;
+document.getElementById("score").innerText="Score: " + score;
+}
 }
 
 // ===== START =====
